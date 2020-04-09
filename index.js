@@ -10,6 +10,16 @@ template.innerHTML = `
 .adjust-btn-width {
     width:30%;
 }
+.item{
+    padding :10px;
+    border-bottom: 1px solid lightgrey
+
+}
+.list { 
+    border: 1px solid lightgrey;
+    z-index:100;
+}
+
 .error {
     border:1px solid red;
 }
@@ -58,12 +68,10 @@ template.innerHTML = `
 
                     
 
-                    <div class="dropdown">
+                    <div class="">
                     <label for="strasse">Strasse</label>
                         <input type="text" class="form-control" id="strasse" placeholder="Enter Strasse">
-                        <div id="strasse-list" class="dropdown-menu">
-
-                            <div> </div>
+                        <div id="strasse-list" class="list">
                         </div>
                     </div>
 
@@ -130,7 +138,7 @@ class TodoApp extends HTMLElement {
         this.zipcodeInput.addEventListener('change', this.handleZipCode.bind(this));
         this.zipcodeInput.addEventListener('focusout', this.handleZipCodeError.bind(this));
         this.strasse.addEventListener('keyup', this.handleStrasse.bind(this))
-        this.strasse.addEventListener('focusout', this.handleStrassetError.bind(this))
+      this.strasse.addEventListener('focusout', this.handleStrassetError.bind(this))
         this.strasseList.addEventListener('click', this.handleStrasseList.bind(this), false)
         this.cityInput.addEventListener('focusout', this.handleCityError.bind(this))
         this.infoButton.addEventListener('click', this.getInfo.bind(this))
@@ -179,27 +187,35 @@ class TodoApp extends HTMLElement {
     }
     handleStrasseList(event) {
 
-        const clickedItem = event.target.innerHTML;
+        const clickedItem = event.target.innerText;
         this.strasse.value = clickedItem;
         this.strasseList.innerHTML = '';
     }
 
     handleStrassetError() {
-        this.dropdown.classList.remove('open')
+    //    this.dropdown.classList.remove('open')
         if (this.streets.filter(x => x == this.strasse.value).length == 0) {
             this.strasse.value = ''
             this.strasseList.innerHTML = '';
         }
     }
-
     handleCityError() {
         console.log(this.cityInput.value)
-        if (this.cityInput.value == '')
+        if (this.cityInput.value == '') {
             this.cityInput.classList.add('error')
+            return;
+        }
 
-        else
-            this.cityInput.classList.add('valid')
+         const temp =   this.data.filter(x => x.zipcode == this.zipcodeInput.value)[0];
+         if (temp && temp.city == this.cityInput.value) {
+            this.cityInput.classList.add('valid');
+            return 
+        } else {
+            this.cityInput.value = '';
+            this.cityInput.classList.add('error')
+        }
     }
+
 
 
     get data() {
@@ -243,11 +259,12 @@ class TodoApp extends HTMLElement {
         if (this.strasse.value == '') {
             return
         }
-        this.dropdown.classList.add('open')
+    //    this.dropdown.classList.add('open')
         const temp = this.streets.filter(x => x.toString().includes(this.strasse.value));
         temp.forEach(x => {
             const el = document.createElement('div');
             el.innerText = x;
+            el.classList.add('item')
             this.strasseList.appendChild(el)
         })
     }
