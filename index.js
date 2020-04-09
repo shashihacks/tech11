@@ -11,8 +11,8 @@ template.innerHTML = `
     width:30%;
 }
 .item{
-    padding :10px;
-    border-bottom: 1px solid lightgrey
+padding:18px;
+    border-bottom: 1px solid lightgrey;
 
 }
 .list { 
@@ -47,14 +47,16 @@ template.innerHTML = `
             <div class="col-md-4">
                 <div class="form-group">
                     <label for="plz">PLZ</label>
-                    <input type="number" class="form-control" id="plz" placeholder="Enter PLZ">
+                    <input
+                    required
+                    type="number" class="form-control" id="plz" placeholder="Enter PLZ">
 
                 </div>
             </div>
             <div class="col-md-8">
                 <div class="form-group">
                     <label for="city">City</label>
-                    <input type="text" class="form-control" id="city" placeholder="Enter City">
+                    <input required type="text" class="form-control" id="city" placeholder="Enter City">
 
                 </div>
             </div>
@@ -80,7 +82,7 @@ template.innerHTML = `
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="house">House Nummber</label>
-                    <input type="text" class="form-control" id="house" placeholder="Enter House Nummer">
+                    <input required type="text" class="form-control" id="house" placeholder="Enter House Nummer">
 
                 </div>
             </div>
@@ -107,7 +109,7 @@ template.innerHTML = `
     <div class="display-json">
         <textarea
         class="hide"
-        name="" id="myTextarea" cols="30" rows="8"></textarea>
+         id="myTextarea" cols="30" rows="10"></textarea>
     </div>
 </div>
 
@@ -138,11 +140,11 @@ class TodoApp extends HTMLElement {
         this.zipcodeInput.addEventListener('change', this.handleZipCode.bind(this));
         this.zipcodeInput.addEventListener('focusout', this.handleZipCodeError.bind(this));
         this.strasse.addEventListener('keyup', this.handleStrasse.bind(this))
-      this.strasse.addEventListener('focusout', this.handleStrassetError.bind(this))
+        this.strasse.addEventListener('focusout', this.handleStrassetError.bind(this))
         this.strasseList.addEventListener('click', this.handleStrasseList.bind(this), false)
         this.cityInput.addEventListener('focusout', this.handleCityError.bind(this))
         this.infoButton.addEventListener('click', this.getInfo.bind(this))
-
+        this.hausNummer.addEventListener('focusout', this.handleHouseError.bind(this))
 
     }
 
@@ -152,72 +154,7 @@ class TodoApp extends HTMLElement {
     }
 
 
-    getInfo(e) {
-        e.preventDefault()
-        let object = {
-            address: {
-                zipcode: this.zipcodeInput.value,
-                stadt: this.cityInput.value,
-                strasse: this.strasse.value,
-                hausNummer: this.hausNummer.value,
-                land: this.land.value
-            }
-
-        }
-
-        if (object.address.zipcode == '')
-
-
-            this.myTextArea.classList.remove('hide')
-        var textedJson = JSON.stringify(object, undefined, 4);
-        this.myTextArea.innerHTML = textedJson;
-    }
-
-
-
-    handleZipCodeError() {
-        if (this.data.filter(x => x.zipcode == this.zipcodeInput.value).length == 0) {
-            this.cityInput.value = ''
-            this.zipcodeInput.classList.add('error')
-        }
-        else {
-            this.zipcodeInput.classList.add('valid')
-        }
-
-    }
-    handleStrasseList(event) {
-
-        const clickedItem = event.target.innerText;
-        this.strasse.value = clickedItem;
-        this.strasseList.innerHTML = '';
-    }
-
-    handleStrassetError() {
-    //    this.dropdown.classList.remove('open')
-        if (this.streets.filter(x => x == this.strasse.value).length == 0) {
-            this.strasse.value = ''
-            this.strasseList.innerHTML = '';
-        }
-    }
-    handleCityError() {
-        console.log(this.cityInput.value)
-        if (this.cityInput.value == '') {
-            this.cityInput.classList.add('error')
-            return;
-        }
-
-         const temp =   this.data.filter(x => x.zipcode == this.zipcodeInput.value)[0];
-         if (temp && temp.city == this.cityInput.value) {
-            this.cityInput.classList.add('valid');
-            return 
-        } else {
-            this.cityInput.value = '';
-            this.cityInput.classList.add('error')
-        }
-    }
-
-
-
+//Getters and Setters
     get data() {
         return this._data
     }
@@ -233,6 +170,100 @@ class TodoApp extends HTMLElement {
         this._streets = value
 
     }
+
+
+    getInfo(e) {
+
+        e.preventDefault()
+        this.myTextArea.classList.remove('hide')
+        let object = {
+            address: {
+                zipcode: this.zipcodeInput.value,
+                stadt: this.cityInput.value,
+                strasse: this.strasse.value,
+                hausNummer: this.hausNummer.value,
+                land: this.land.value
+            }
+
+        }
+console.log(object)
+        if (object.address.zipcode == '')
+
+
+            
+        var textedJson = JSON.stringify(object, undefined, 4);
+        this.myTextArea.innerHTML = textedJson;
+    }
+
+
+    handleHouseError() {
+        console.log("focus out", this.hausNummer.value)
+        if (this.hausNummer.value == '') {
+            this.hausNummer.classList.remove('valid')
+            this.hausNummer.classList.add('error')
+
+        }
+        else {
+            this.hausNummer.classList.remove('error')
+            this.hausNummer.classList.add('valid')
+        }
+
+    }
+    handleZipCodeError() {
+        if (this.data.filter(x => x.zipcode == this.zipcodeInput.value).length == 0) {
+            this.cityInput.value = ''
+            this.zipcodeInput.classList.remove('valid')
+            this.zipcodeInput.classList.add('error')
+        }
+        else {
+            this.zipcodeInput.classList.remove('error')
+            this.zipcodeInput.classList.add('valid')
+        }
+
+    }
+    handleStrasseList(event) {
+        console.log(event)
+        const clickedItem = event.target.innerText;
+        console.log("clicked item", clickedItem)
+        this.strasse.value = clickedItem;
+        this.strasseList.innerHTML = '';
+    }
+
+    handleStrassetError() {
+        //    this.dropdown.classList.remove('open')
+        if (this.streets.filter(x => x == this.strasse.value).length == 0) {
+            this.strasse.value = ''
+            this.strasseList.innerHTML = '';
+            this.strasse.classList.remove('valid')
+            this.strasse.classList.add('error')
+        }
+        else {
+            this.strasse.classList.remove('error')
+            this.strasse.classList.add('valid')
+        }
+    }
+    handleCityError() {
+        console.log(this.cityInput.value)
+        if (this.cityInput.value == '') {
+            this.cityInput.classList.remove('valid')
+            this.cityInput.classList.add('error')
+            return;
+        }
+
+        const temp = this.data.filter(x => x.zipcode == this.zipcodeInput.value)[0];
+        if (temp && temp.city == this.cityInput.value) {
+            this.cityInput.classList.remove('error')
+            this.cityInput.classList.add('valid');
+            return
+        } else {
+            this.cityInput.value = '';
+            this.cityInput.classList.remove('valid')
+            this.cityInput.classList.add('error')
+        }
+    }
+
+
+
 
 
 
@@ -259,7 +290,7 @@ class TodoApp extends HTMLElement {
         if (this.strasse.value == '') {
             return
         }
-    //    this.dropdown.classList.add('open')
+        //    this.dropdown.classList.add('open')
         const temp = this.streets.filter(x => x.toString().includes(this.strasse.value));
         temp.forEach(x => {
             const el = document.createElement('div');
